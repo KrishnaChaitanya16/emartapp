@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "616416913187",
+    "project_id": "emartapp-15b22",
+    "storage_bucket": "emartapp-15b22.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616416913187:android:0e8a32f3a0f3d0f9a5ce96",
+        "android_client_info": {
+          "package_name": "com.example.emartapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb6fetsjoPyJJ0KWzGqIdBBYajeyifdVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
