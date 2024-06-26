@@ -1,4 +1,11 @@
 import 'dart:async';
+
+import 'package:emartapp/pages/Applepage.dart';
+import 'package:emartapp/pages/Hublotpage.dart';
+import 'package:emartapp/pages/Nikepage.dart';
+import 'package:emartapp/pages/Nykaapage.dart';
+
+import 'package:emartapp/pages/Zarapage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,10 +31,18 @@ class _HomepageState extends State<Homepage> {
     {'name': 'Clothing', 'image': 'assets/dress.jpeg'},
     {'name': 'Groceries', 'image': 'assets/grocery.jpeg'},
     {'name': 'Books', 'image': 'assets/books.jpeg'},
-    {'name': 'Beauty', 'image': 'assets/beauty.jpeg'}
+    {'name': 'Beauty', 'image': 'assets/bueaty.jpeg'}
   ];
-
+  final List<Widget> Brands = [
+   Zarapage(),
+    Nykaapage(),
+    Applepage(),
+    Hublotpage(),
+    Nikepage()
+  ];
   int selectedIndex = 0;
+  late PageController _pageController;
+  late Timer _timer;
 
   final List<String> featuredImages = [
     'assets/macbook deal.jpg',
@@ -51,8 +66,7 @@ class _HomepageState extends State<Homepage> {
     GroceriesPage(),
   ];
 
-  late PageController _pageController;
-  late Timer _timer;
+  String searchQuery = '';
 
   @override
   void initState() {
@@ -79,6 +93,11 @@ class _HomepageState extends State<Homepage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
 
+    // Filtered categories based on search query
+    List<Map<String, String>> filteredCategories = categories.where((category) {
+      return category['name']!.toLowerCase().contains(searchQuery.toLowerCase());
+    }).toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -94,6 +113,11 @@ class _HomepageState extends State<Homepage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: 'Search...',
                   hintStyle: GoogleFonts.nunito(color: Colors.grey),
@@ -220,7 +244,7 @@ class _HomepageState extends State<Homepage> {
             color: Colors.white,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
+              itemCount: filteredCategories.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
@@ -228,7 +252,7 @@ class _HomepageState extends State<Homepage> {
                       selectedIndex = index;
                     });
                     // Navigate to the respective category page
-                    switch (categories[index]['name']) {
+                    switch (filteredCategories[index]['name']) {
                       case 'Accessories':
                         Navigator.push(
                           context,
@@ -281,13 +305,13 @@ class _HomepageState extends State<Homepage> {
                             ),
                           ),
                           child: CircleAvatar(
-                            backgroundImage: AssetImage(categories[index]['image']!),
+                            backgroundImage: AssetImage(filteredCategories[index]['image']!),
                             radius: 30,
                           ),
                         ),
                         SizedBox(height: 8),
                         Text(
-                          categories[index]['name']!,
+                          filteredCategories[index]['name']!,
                           style: GoogleFonts.nunito(
                             fontSize: 14,
                             color: selectedIndex == index ? Colors.black : Colors.grey,
@@ -303,8 +327,8 @@ class _HomepageState extends State<Homepage> {
           Expanded(
             child: ListView(
               children: [
-                featuredSection(screenWidth, screenHeight,),
-                popularBrandsSection(screenWidth, screenHeight, popularBrands),
+                featuredSection(screenWidth, screenHeight),
+                popularBrandsSection(screenWidth, screenHeight, popularBrands,Brands),
                 dealsOfTheDaySection(screenWidth, screenHeight),
               ],
             ),
@@ -313,6 +337,7 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
+
   Widget featuredSection(double screenWidth, double screenHeight) {
     return Padding(
       padding: EdgeInsets.all(16.0),
@@ -329,7 +354,6 @@ class _HomepageState extends State<Homepage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
             ],
           ),
           SizedBox(height: 10),
@@ -365,6 +389,7 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
+
   Widget dealsOfTheDaySection(double screenWidth, double screenHeight) {
     // Mock data for deals (replace with actual data model if needed)
     final List<Map<String, dynamic>> deals = [
@@ -419,66 +444,76 @@ class _HomepageState extends State<Homepage> {
             ),
             itemCount: deals.length,
             itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3), // changes position of shadow
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailsPage(deal: deals[index],),
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                      child: Image.asset(
-                        deals[index]['image'],
-                        width: double.infinity,
-                        height: screenHeight * 0.15, // Adjust height as needed
-                        fit: BoxFit.fitHeight,
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: Offset(0, 3), // changes position of shadow
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            deals[index]['name'],
-                            style: GoogleFonts.nunito(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            deals[index]['originalPrice'],
-                            style: GoogleFonts.nunito(
-                              fontSize: 16,
-                              color: Colors.grey,
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            deals[index]['offerPrice'],
-                            style: GoogleFonts.nunito(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                        child: Image.asset(
+                          deals[index]['image'],
+                          width: double.infinity,
+                          height: screenHeight * 0.15, // Adjust height as needed
+                          fit: BoxFit.fitHeight,
+                        ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              deals[index]['name'],
+                              style: GoogleFonts.nunito(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              deals[index]['originalPrice'],
+                              style: GoogleFonts.nunito(
+                                fontSize: 16,
+                                color: Colors.grey,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              deals[index]['offerPrice'],
+                              style: GoogleFonts.nunito(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -488,9 +523,7 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-
-
-  Widget popularBrandsSection(double screenWidth, double screenHeight, List<String> popularBrands) {
+  Widget popularBrandsSection(double screenWidth, double screenHeight, List<String> popularBrands, List<Widget> brandPages) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
@@ -514,7 +547,10 @@ class _HomepageState extends State<Homepage> {
                 return GestureDetector(
                   onTap: () {
                     // Handle brand selection
-                    print('Brand tapped: ${popularBrands[index]}');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => brandPages[index]),
+                    );
                   },
                   child: Container(
                     width: screenWidth * 0.35, // Adjust the width as needed
@@ -548,33 +584,115 @@ class _HomepageState extends State<Homepage> {
         ],
       ),
     );
-  }
+  }}
+class ProductDetailsPage extends StatelessWidget {
+  final Map<String, dynamic> deal;
 
+  const ProductDetailsPage({Key? key, required this.deal}) : super(key: key);
 
-  Widget groceriesSection(double screenWidth, double screenHeight) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
+  @override
+  Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      backgroundColor: Colors.white, // Set Scaffold background color to white
+      appBar: AppBar(
+        title: Text(
+          'Product Details',
+          style: GoogleFonts.nunito(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        backgroundColor: Colors.white, // Set AppBar background color to white
+        iconTheme: IconThemeData(color: Colors.black), // Ensure app bar icon color is black
+      ),
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Groceries',
-            style: GoogleFonts.nunito(
-              fontSize: screenWidth * 0.05,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: Image.asset(
+                        deal['image'],
+                        height: screenHeight * 0.5, // Adjusted image height
+                        width: screenWidth * 0.9, // Adjusted image width
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    deal['name'],
+                    style: GoogleFonts.nunito(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Product description will go here. Replace this with actual product details.',
+                    style: GoogleFonts.nunito(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        deal['offerPrice'],
+                        style: GoogleFonts.nunito(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(width: 16), // Add some space between price and button
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(height: 10),
           Container(
-            height: screenHeight * 0.2, // Adjust the height as needed
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(10),
+            width: double.infinity, // Full width button
+            margin: EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                // Implement Add to Cart functionality
+                print('Added to Cart: ${deal['name']}');
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0), // Rounded button
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                'Add to Cart',
+                style: GoogleFonts.nunito(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
-            child: Center(child: Text('Groceries Content')),
           ),
         ],
       ),
     );
-  }}
-
+  }
+}
