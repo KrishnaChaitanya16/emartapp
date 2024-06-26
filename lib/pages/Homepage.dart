@@ -215,6 +215,7 @@ class _HomepageState extends State<Homepage> {
                         Navigator.pop(context);
                       },
                     ),
+                    SizedBox(height: 30,),
                     ListTile(
                       leading: SizedBox(child: Image.asset('lib/icons/user.png',fit: BoxFit.cover,),height: 20,width: 20,),
                       title: Text('Profile', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
@@ -222,13 +223,19 @@ class _HomepageState extends State<Homepage> {
                         Navigator.pop(context);
                       },
                     ),
+                    SizedBox(height: 30,),
                     ListTile(
-                      leading: SizedBox(child: Image.asset('lib/icons/bag.png',fit: BoxFit.cover,),height: 20,width: 20,),
+                      leading: SizedBox(child: Image.asset('lib/icons/shopping-bag.png',fit: BoxFit.cover,),height: 20,width: 20,),
                       title: Text('Cart', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
                       onTap: () {
                         Navigator.pop(context);
                       },
                     ),
+                    SizedBox(height: 30,),
+                    ListTile(
+                      leading: SizedBox(child: Image.asset('lib/icons/wishlist.png',fit: BoxFit.cover,),height: 20,width: 20,),
+                      title: Text('Whishlist',style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
+                    )
                   ],
                 ),
               ),
