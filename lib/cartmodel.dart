@@ -1,13 +1,13 @@
 class CartItem {
-  final String productName;
-  final String imageUrl;
-  final String productPrice;
+  final String imagePath;
+  final String name;
+  final double price;
   int quantity;
 
   CartItem({
-    required this.productName,
-    required this.imageUrl,
-    required this.productPrice,
-    this.quantity = 1,
+    required this.imagePath,
+    required this.name,
+    required this.price,
+    this.quantity = 1, // Default quantity is 1
   });
 }

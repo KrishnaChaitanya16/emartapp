@@ -1,5 +1,8 @@
+import 'package:emartapp/cartmodel.dart';
+import 'package:emartapp/cartprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 // Define the product model
 class Product {
@@ -28,49 +31,49 @@ class BooksPage extends StatelessWidget {
       Product(
         name: 'Book 1',
         image: 'assets/book1.jpg',
-        price: '\$19.99',
+        price: '19.99',
         description: 'Description of Book 1',
       ),
       Product(
         name: 'Atomic Habits',
         image: 'assets/habit.jpg',
-        price: '\$21.99',
+        price: '21.99',
         description: 'Description of Atomic Habits',
       ),
       Product(
         name: 'Money Master the Game',
         image: 'assets/money.jpeg',
-        price: '\$25.99',
+        price: '25.99',
         description: 'Description of Money Master the Game',
       ),
       Product(
         name: 'The Power of Habit',
         image: 'assets/power.jpeg',
-        price: '\$18.99',
+        price: '18.99',
         description: 'Description of The Power of Habit',
       ),
       Product(
         name: 'Ikigai',
         image: 'assets/ikigai.jpg',
-        price: '\$14.99',
+        price: '14.99',
         description: 'Description of Ikigai',
       ),
       Product(
         name: 'Deep Work',
         image: 'assets/db.jpg',
-        price: '\$16.99',
+        price: '16.99',
         description: 'Description of Deep Work',
       ),
       Product(
         name: 'Originals',
         image: 'assets/oa.jpeg',
-        price: '\$19.99',
+        price: '19.99',
         description: 'Description of Originals',
       ),
       Product(
         name: 'Rich Dad Poor Dad',
         image: 'assets/rd.jpg',
-        price: '\$22.99',
+        price: '22.99',
         description: 'Description of Rich Dad Poor Dad',
       ),
       // Add more products as needed
@@ -192,7 +195,7 @@ class PriceGridView extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  product.price,
+                  "₹${product.price}",
                   style: GoogleFonts.nunito(
                     fontSize: 14,
                     color: Colors.black,
@@ -211,95 +214,109 @@ class PriceGridView extends StatelessWidget {
 class ProductDetailsPage extends StatelessWidget {
   final Product product;
 
-  const ProductDetailsPage({Key? key, required this.product}) : super(key: key);
+  const ProductDetailsPage({
+    Key? key,
+    required this.product,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          'Product Details',
-          style: GoogleFonts.nunito(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        title: Text('Product Details'),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Image.asset(
+                  product.image,
+                  height: screenHeight * 0.4,
+                  width: double.infinity,
+                  fit: BoxFit.fitHeight,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: Image.asset(
-                        product.image,
-                        height: screenHeight * 0.5, // Adjusted image height
-                        width: screenWidth * 0.9, // Adjusted image width
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
                   Text(
                     product.name,
-                    style: GoogleFonts.nunito(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 8),
                   Text(
-                    product.description,
-                    style: GoogleFonts.nunito(
+                    product.description ?? '', // Display description if available
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
                   Text(
-                    product.price,
-                    style: GoogleFonts.nunito(
-                      fontSize: 20,
+                    '₹${product.price}', // Ensure price string does not contain '₹'
+                    style: TextStyle(
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.3), // Adjust spacing dynamically
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add product to cart
+                      final cartItem = CartItem(
+                        imagePath: product.image,
+                        name: product.name,
+                        price: double.parse(product.price.replaceAll('₹', '').replaceAll(',', '')),
+                      );
+                      cartProvider.addToCart(cartItem);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Added to cart'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.black,
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Add to Cart',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // Implement Add to Cart functionality
-                print('Added to Cart: ${product.name}');
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0), // Rounded button
-                ),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Add to Cart'),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

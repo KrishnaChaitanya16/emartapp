@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:emartapp/cartmodel.dart';
+import 'package:emartapp/cartprovider.dart';
 import 'package:emartapp/pages/Applepage.dart';
+import 'package:emartapp/pages/Cartpage.dart';
 import 'package:emartapp/pages/Hublotpage.dart';
 import 'package:emartapp/pages/Nikepage.dart';
 import 'package:emartapp/pages/Nykaapage.dart';
@@ -16,6 +19,7 @@ import 'package:emartapp/pages/BooksPage.dart';
 import 'package:emartapp/pages/Clothingpage.dart';
 import 'package:emartapp/pages/Electronicspage.dart';
 import 'package:emartapp/pages/Groceriespage.dart';
+import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -133,9 +137,12 @@ class _HomepageState extends State<Homepage> {
             ),
             actions: [
               InkWell(
-                onTap: () {
-                  print('Cart icon pressed');
-                },
+              onTap: () {
+        Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CartPage()), // Replace CartPage with your actual cart page widget
+        );
+        },
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 10),
                   child: Image.asset(
@@ -202,22 +209,22 @@ class _HomepageState extends State<Homepage> {
                   padding: EdgeInsets.zero,
                   children: [
                     ListTile(
-                      leading: Icon(Icons.home),
+                      leading: SizedBox(child: Image.asset('lib/icons/home.png',fit: BoxFit.cover,),height: 20,width: 20,),
                       title: Text('Home', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
                       onTap: () {
                         Navigator.pop(context);
                       },
                     ),
                     ListTile(
-                      leading: Icon(Icons.person),
+                      leading: SizedBox(child: Image.asset('lib/icons/user.png',fit: BoxFit.cover,),height: 20,width: 20,),
                       title: Text('Profile', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
                       onTap: () {
                         Navigator.pop(context);
                       },
                     ),
                     ListTile(
-                      leading: Icon(Icons.settings),
-                      title: Text('Settings', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
+                      leading: SizedBox(child: Image.asset('lib/icons/bag.png',fit: BoxFit.cover,),height: 20,width: 20,),
+                      title: Text('Cart', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
                       onTap: () {
                         Navigator.pop(context);
                       },
@@ -671,7 +678,7 @@ class ProductDetailsPage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 // Implement Add to Cart functionality
-                print('Added to Cart: ${deal['name']}');
+                addToCart(context, deal); // Call function to add to cart
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -692,6 +699,29 @@ class ProductDetailsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void addToCart(BuildContext context, Map<String, dynamic> deal) {
+    // Access CartProvider instance
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+    // Add item to cart
+    cartProvider.addToCart(
+      CartItem(
+        name: deal['name'],
+        price: double.parse(deal['offerPrice'].replaceAll('₹', '').replaceAll(',', '')), // Example: ₹1,000 -> 1000.0
+        quantity: 1, // Initial quantity
+        imagePath: deal['image'],
+      ),
+    );
+
+    // Show confirmation or perform any other action
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${deal['name']} added to cart'),
+        duration: Duration(seconds: 2),
       ),
     );
   }

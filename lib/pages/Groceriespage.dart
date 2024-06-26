@@ -1,5 +1,8 @@
+import 'package:emartapp/cartmodel.dart';
+import 'package:emartapp/cartprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 // Define the product model
 class Product {
@@ -30,49 +33,49 @@ class GroceriesPage extends StatelessWidget {
       Product(
         name: 'Mango',
         image: 'assets/mango.jpg',
-        price: '\$9.99',
+        price: '9.99',
         description: 'Fresh and juicy mangoes.',
       ),
       Product(
         name: 'Butter',
         image: 'assets/butter.jpg',
-        price: '\$19.99',
+        price: '19.99',
         description: 'Premium quality butter.',
       ),
       Product(
         name: 'Bread',
         image: 'assets/bread.png',
-        price: '\$14.99',
+        price: '14.99',
         description: 'Whole grain bread.',
       ),
       Product(
         name: 'Dairy Milk',
         image: 'assets/dairymilk.png',
-        price: '\$29.99',
+        price: '29.99',
         description: 'Creamy dairy milk chocolate.',
       ),
       Product(
         name: 'Biscuit',
         image: 'assets/biscuit.jpg',
-        price: '\$24.99',
+        price: '24.99',
         description: 'Crunchy biscuits.',
       ),
       Product(
         name: 'Lays',
         image: 'assets/lays.png',
-        price: '\$39.99',
+        price: '39.99',
         description: 'Potato chips.',
       ),
       Product(
         name: 'Veggies',
         image: 'assets/veggies.jpg',
-        price: '\$49.99',
+        price: '49.99',
         description: 'Fresh vegetables.',
       ),
       Product(
         name: 'Milk',
         image: 'assets/milk.png',
-        price: '\$54.99',
+        price: '54.99',
         description: 'Fresh milk.',
       ),
       // Add more products as needed
@@ -194,7 +197,7 @@ class ProductGridView extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  product.price,
+                 ' ₹${product.price}',
                   style: GoogleFonts.nunito(
                     fontSize: 14,
                     color: Colors.black,
@@ -213,95 +216,109 @@ class ProductGridView extends StatelessWidget {
 class ProductDetailsPage extends StatelessWidget {
   final Product product;
 
-  const ProductDetailsPage({Key? key, required this.product}) : super(key: key);
+  const ProductDetailsPage({
+    Key? key,
+    required this.product,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          'Product Details',
-          style: GoogleFonts.nunito(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        title: Text('Product Details'),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Image.asset(
+                  product.image,
+                  height: screenHeight * 0.4,
+                  width: double.infinity,
+                  fit: BoxFit.fitHeight,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: Image.asset(
-                        product.image,
-                        height: screenHeight * 0.5, // Adjusted image height
-                        width: screenWidth * 0.9, // Adjusted image width
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
                   Text(
                     product.name,
-                    style: GoogleFonts.nunito(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 8),
                   Text(
-                    product.description,
-                    style: GoogleFonts.nunito(
+                    product.description ?? '', // Display description if available
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
                   Text(
-                    product.price,
-                    style: GoogleFonts.nunito(
-                      fontSize: 20,
+                    '₹${product.price}', // Ensure price string does not contain '₹'
+                    style: TextStyle(
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.3), // Adjust spacing dynamically
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add product to cart
+                      final cartItem = CartItem(
+                        imagePath: product.image,
+                        name: product.name,
+                        price: double.parse(product.price.replaceAll('₹', '').replaceAll(',', '')),
+                      );
+                      cartProvider.addToCart(cartItem);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Added to cart'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.black,
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Add to Cart',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // Implement Add to Cart functionality
-                print('Added to Cart: ${product.name}');
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0), // Rounded button
-                ),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Add to Cart'),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

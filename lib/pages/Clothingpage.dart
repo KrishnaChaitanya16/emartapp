@@ -1,7 +1,11 @@
+import 'package:emartapp/cartmodel.dart';
+import 'package:emartapp/cartprovider.dart';
 import 'package:emartapp/pages/Homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
  // Assuming you have a ProductDetailsPage in a separate file
+
 
 class ClothingPage extends StatelessWidget {
   const ClothingPage({Key? key}) : super(key: key);
@@ -13,25 +17,25 @@ class ClothingPage extends StatelessWidget {
         'name': 'Men\'s Shirt',
         'image': 'assets/shirt.jpeg',
         'description': 'Comfortable and stylish shirt for men.',
-        'offerPrice': '\$99.99',
+        'offerPrice': '99.99',
       },
       {
         'name': 'Men\'s T-shirt',
         'image': 'assets/tshirt.jpeg',
         'description': 'Casual t-shirt suitable for daily wear.',
-        'offerPrice': '\$49.99',
+        'offerPrice': '49.99',
       },
       {
         'name': 'Men\'s Pant',
         'image': 'assets/pant.jpeg',
         'description': 'Classic pant with a modern twist.',
-        'offerPrice': '\$129.99',
+        'offerPrice': '129.99',
       },
       {
         'name': 'Men\'s Cargos',
         'image': 'assets/cargos.jpeg',
         'description': 'Durable and comfortable cargo pants.',
-        'offerPrice': '\$79.99',
+        'offerPrice': '79.99',
       },
     ];
 
@@ -40,25 +44,25 @@ class ClothingPage extends StatelessWidget {
         'name': 'Women\'s Dress 1',
         'image': 'assets/fd1.jpg',
         'description': 'Elegant and stylish dress for women.',
-        'offerPrice': '\$149.99',
+        'offerPrice': '149.99',
       },
       {
         'name': 'Women\'s Dress 2',
         'image': 'assets/fd2.jpeg',
         'description': 'Beautiful dress perfect for special occasions.',
-        'offerPrice': '\$199.99',
+        'offerPrice': '199.99',
       },
       {
         'name': 'Women\'s Dress 3',
         'image': 'assets/fd3.jpeg',
         'description': 'Comfortable and trendy dress for everyday wear.',
-        'offerPrice': '\$79.99',
+        'offerPrice': '79.99',
       },
       {
         'name': 'Women\'s Dress 4',
         'image': 'assets/fd4.jpeg',
         'description': 'Chic and fashionable dress for modern women.',
-        'offerPrice': '\$129.99',
+        'offerPrice': '129.99',
       },
     ];
 
@@ -77,7 +81,12 @@ class ClothingPage extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ProductDetailsPage(deal: products[index]),
+                builder: (context) => ProductDetailsPage(
+                  imagePath: products[index]['image'],
+                  name: products[index]['name'],
+                  price: products[index]['offerPrice'],
+                  description: products[index]['description'],
+                ),
               ));
             },
             child: Container(
@@ -117,7 +126,7 @@ class ClothingPage extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    products[index]['offerPrice'],
+                    '₹${products[index]['offerPrice']}',
                     style: GoogleFonts.nunito(
                       fontSize: 14,
                       color: Colors.black,
@@ -178,6 +187,122 @@ class ClothingPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: buildGridView(womenProducts),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class ProductDetailsPage extends StatelessWidget {
+  final String imagePath;
+  final String name;
+  final String price;
+  final String description;
+
+  const ProductDetailsPage({
+    Key? key,
+    required this.imagePath,
+    required this.name,
+    required this.price,
+    required this.description,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Product Details'),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Image.asset(
+                  imagePath,
+                  height: screenHeight * 0.4, // Adjust image height as needed
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
+                  Text(
+                    '₹$price', // Ensure price string does not contain '$'
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.3), // Adjust spacing dynamically
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add product to cart
+                      final cartItem = CartItem(
+                        imagePath: imagePath,
+                        name: name,
+                        price: double.parse(price.replaceAll('₹', '').replaceAll(',', '')),
+                      );
+                      cartProvider.addToCart(cartItem);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Added to cart'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.black,
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Add to Cart',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

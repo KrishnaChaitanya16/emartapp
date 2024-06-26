@@ -1,5 +1,7 @@
+import 'package:emartapp/cartmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:emartapp/cartprovider.dart'; // Import your CartProvider
 
 class CustomScaffold extends StatelessWidget {
   final String pageTitle;
@@ -20,7 +22,7 @@ class CustomScaffold extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           pageTitle,
-          style: GoogleFonts.nunito(
+          style: TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -41,7 +43,6 @@ class CustomScaffold extends StatelessWidget {
           final product = productList[index];
           return GestureDetector(
             onTap: () {
-              // Navigate to product details page
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -59,7 +60,7 @@ class CustomScaffold extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              color: Colors.white, // Set card background color here
+              color: Colors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -86,7 +87,7 @@ class CustomScaffold extends StatelessWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          '₹${product['price']!}', // Display price with ₹ symbol
+                          '₹${product['price']!}',
                           style: TextStyle(
                             color: Colors.grey,
                           ),
@@ -104,6 +105,10 @@ class CustomScaffold extends StatelessWidget {
   }
 }
 
+
+
+
+
 class ProductDetailsPage extends StatelessWidget {
   final String imagePath;
   final String name;
@@ -120,47 +125,42 @@ class ProductDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+    // Get screen size
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          'Product Details',
-          style: GoogleFonts.nunito(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        title: Text('Product Details'),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Image.asset(
+                  imagePath,
+                  height: 400,
+                  width: 400,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: Image.asset(
-                        imagePath,
-                        height: screenHeight * 0.5,
-                        width: screenWidth * 0.9,
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
                   Text(
                     name,
-                    style: GoogleFonts.nunito(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -168,43 +168,61 @@ class ProductDetailsPage extends StatelessWidget {
                   SizedBox(height: 8),
                   Text(
                     description,
-                    style: GoogleFonts.nunito(
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: screenHeight*0.02),
                   Text(
-                    '₹$price', // Display price with ₹ symbol
-                    style: GoogleFonts.nunito(
-                      fontSize: 20,
+                    '₹$price',
+                    style: TextStyle(
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.17), // Adjust height dynamically based on screen height
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add product to cart
+                      final cartItem = CartItem(
+                        imagePath: imagePath,
+                        name: name,
+                        price: double.parse(price.replaceAll('₹', '').replaceAll(',', '')),
+                      );
+                      cartProvider.addToCart(cartItem);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Added to cart'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.black,
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Add to Cart',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // Implement Add to Cart functionality
-                print('Added to Cart: $name');
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Add to Cart'),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

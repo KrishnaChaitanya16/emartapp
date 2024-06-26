@@ -1,39 +1,46 @@
 import 'package:emartapp/cartmodel.dart';
 import 'package:flutter/material.dart';
- // Ensure the path is correct
+ // Import your CartItem model
 
 class CartProvider with ChangeNotifier {
-  final List<CartItem> _cartItems = [];
+  List<CartItem> _cartItems = [];
 
   List<CartItem> get cartItems => _cartItems;
 
-  void addToCart(String name, String price, String image) {
-    final existingIndex = _cartItems.indexWhere((item) => item.productName == name);
-    if (existingIndex >= 0) {
-      _cartItems[existingIndex].quantity += 1;
+  // Add to cart method
+  void addToCart(CartItem item) {
+    _cartItems.add(item);
+    notifyListeners();
+  }
+
+  // Remove from cart method (if needed)
+  void removeFromCart(CartItem item) {
+    _cartItems.remove(item);
+    notifyListeners();
+  }
+
+  // Increment item quantity in cart
+  void incrementItem(CartItem item) {
+    item.quantity++;
+    notifyListeners();
+  }
+
+  // Decrement item quantity in cart, and remove if quantity becomes zero
+  void decrementItem(CartItem item) {
+    if (item.quantity > 1) {
+      item.quantity--;
     } else {
-      _cartItems.add(CartItem(
-        productName: name,
-        imageUrl: image,
-        productPrice: price,
-      ));
+      _cartItems.remove(item);
     }
     notifyListeners();
   }
 
-  void removeFromCart(String name) {
-    final existingIndex = _cartItems.indexWhere((item) => item.productName == name);
-    if (existingIndex >= 0) {
-      _cartItems[existingIndex].quantity -= 1;
-      if (_cartItems[existingIndex].quantity <= 0) {
-        _cartItems.removeAt(existingIndex);
-      }
-    }
-    notifyListeners();
-  }
-
-  void clearCart() {
-    _cartItems.clear();
-    notifyListeners();
+  // Calculate total price of items in cart
+  double getTotalPrice() {
+    double total = 0.0;
+    _cartItems.forEach((item) {
+      total += (item.price * item.quantity) as double;
+    });
+    return total;
   }
 }
