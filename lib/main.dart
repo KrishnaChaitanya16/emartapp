@@ -1,5 +1,6 @@
 import 'package:emartapp/cartprovider.dart';
 import 'package:emartapp/pages/Loginpage.dart';
+import 'package:emartapp/whishlistprovider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,13 +16,15 @@ void main() async{
         storageBucket: 'emartapp-15b22.appspot.com',   ));
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => CartProvider(), // Initialize CartProvider here
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+        ChangeNotifierProvider(create: (context) => WishlistProvider()),
+      ],
       child: MyApp(),
     ),
   );
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 

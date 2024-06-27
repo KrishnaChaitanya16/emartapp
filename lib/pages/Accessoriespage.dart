@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:emartapp/cartmodel.dart';
-import 'package:emartapp/cartprovider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-// Define the product model
+import '../cartmodel.dart';
+import '../cartprovider.dart';
+import '../whishlistprovider.dart';
+
+
 class Product {
   final String name;
   final String image;
@@ -18,7 +21,6 @@ class Product {
   });
 }
 
-// AccessoriesPage class
 class AccessoriesPage extends StatelessWidget {
   const AccessoriesPage({Key? key}) : super(key: key);
 
@@ -65,7 +67,7 @@ class AccessoriesPage extends StatelessWidget {
       ),
       Product(
         name: 'Bracelet',
-        image: 'assets/braclet.jpg',
+        image: 'assets/bracelet.jpg',
         price: '14.99',
         description: 'Stylish bracelet to enhance your look.',
       ),
@@ -83,7 +85,7 @@ class AccessoriesPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Accessories',
-          style: TextStyle(
+          style: GoogleFonts.nunito(
             fontSize: 25,
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -95,17 +97,8 @@ class AccessoriesPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Accessories',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
+            SizedBox(height: 15,),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: PriceGridView(
@@ -121,7 +114,6 @@ class AccessoriesPage extends StatelessWidget {
   }
 }
 
-// PriceGridView class
 class PriceGridView extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
@@ -188,18 +180,42 @@ class PriceGridView extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 8),
-                Text(
-                  product.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      product.name,
+                      style: GoogleFonts.nunito(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Consumer<WishlistProvider>(
+                      builder: (context, wishlistProvider, child) {
+                        final isInWishlist = wishlistProvider.isInWishlist(product.name);
+                        return IconButton(
+                          icon: Icon(
+                            isInWishlist ? Icons.favorite : Icons.favorite_border,
+                            color: isInWishlist ? Colors.red : Colors.grey,
+                          ),
+                          onPressed: () {
+                            wishlistProvider.toggleWishlist(
+                              product.name,
+                              product.image,
+                              product.price,
+                              product.description,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 4),
                 Text(
-                 '₹${product.price}',
-                  style: TextStyle(
+                  '₹${product.price}',
+                  style: GoogleFonts.nunito(
                     fontSize: 14,
                     color: Colors.black,
                   ),
@@ -213,7 +229,7 @@ class PriceGridView extends StatelessWidget {
   }
 }
 
-// ProductDetailsPage class
+
 class ProductDetailsPage extends StatelessWidget {
   final String imagePath;
   final String name;
@@ -232,10 +248,13 @@ class ProductDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final screenHeight = MediaQuery.of(context).size.height;
+    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
+
+    final isInWishlist = wishlistProvider.isInWishlist(name);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Details'),
+        title: Text('Product Details', style: GoogleFonts.nunito()),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
@@ -261,17 +280,36 @@ class ProductDetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        name,
+                        style: GoogleFonts.nunito(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isInWishlist ? Icons.favorite : Icons.favorite_border,
+                          color: isInWishlist ? Colors.red : Colors.grey,
+                        ),
+                        onPressed: () {
+                          wishlistProvider.toggleWishlist(
+                            name,
+                            imagePath,
+                            price,
+                            description,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(height: 8),
                   Text(
                     description,
-                    style: TextStyle(
+                    style: GoogleFonts.nunito(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
@@ -279,12 +317,12 @@ class ProductDetailsPage extends StatelessWidget {
                   SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
                   Text(
                     '₹$price', // Ensure price string does not contain '$'
-                    style: TextStyle(
+                    style: GoogleFonts.nunito(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.3), // Adjust spacing dynamically
+                  SizedBox(height: screenHeight * 0.28), // Adjust spacing dynamically
                   ElevatedButton(
                     onPressed: () {
                       // Add product to cart
@@ -313,7 +351,7 @@ class ProductDetailsPage extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         'Add to Cart',
-                        style: TextStyle(
+                        style: GoogleFonts.nunito(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,

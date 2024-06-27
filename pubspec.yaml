@@ -39,6 +39,8 @@ dependencies:
   firebase_core:
   firebase_auth:
   provider:
+  animated_text_kit:
+  widget_and_text_animator:
 
 dev_dependencies:
   flutter_test:

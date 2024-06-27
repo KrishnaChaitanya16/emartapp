@@ -1,6 +1,7 @@
 import 'package:emartapp/cartmodel.dart';
 import 'package:emartapp/cartprovider.dart';
 import 'package:emartapp/pages/Homepage.dart';
+import 'package:emartapp/whishlistprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -67,6 +68,8 @@ class ClothingPage extends StatelessWidget {
     ];
 
     Widget buildGridView(List<Map<String, dynamic>> products) {
+      final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
+
       return GridView.builder(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
@@ -78,6 +81,8 @@ class ClothingPage extends StatelessWidget {
         ),
         itemCount: products.length,
         itemBuilder: (context, index) {
+          final isInWishlist = wishlistProvider.isInWishlist(products[index]['name']);
+
           return GestureDetector(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -116,13 +121,34 @@ class ClothingPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    products[index]['name'],
-                    style: GoogleFonts.nunito(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          products[index]['name'],
+                          style: GoogleFonts.nunito(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isInWishlist ? Icons.favorite : Icons.favorite_border,
+                          color: isInWishlist ? Colors.red : Colors.grey,
+                        ),
+                        onPressed: () {
+                          wishlistProvider.toggleWishlist(
+                            products[index]['name'],
+                            products[index]['image'],
+                            products[index]['offerPrice'],
+                            products[index]['description'],
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(height: 4),
                   Text(
@@ -212,10 +238,13 @@ class ProductDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final screenHeight = MediaQuery.of(context).size.height;
+    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
+
+    final isInWishlist = wishlistProvider.isInWishlist(name);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Details'),
+        title: Text('Product Details', style: GoogleFonts.nunito()),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
@@ -241,17 +270,36 @@ class ProductDetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        name,
+                        style: GoogleFonts.nunito(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isInWishlist ? Icons.favorite : Icons.favorite_border,
+                          color: isInWishlist ? Colors.red : Colors.grey,
+                        ),
+                        onPressed: () {
+                          wishlistProvider.toggleWishlist(
+                            name,
+                            imagePath,
+                            price,
+                            description,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(height: 8),
                   Text(
                     description,
-                    style: TextStyle(
+                    style: GoogleFonts.nunito(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
@@ -259,12 +307,12 @@ class ProductDetailsPage extends StatelessWidget {
                   SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
                   Text(
                     '₹$price', // Ensure price string does not contain '$'
-                    style: TextStyle(
+                    style: GoogleFonts.nunito(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.3), // Adjust spacing dynamically
+                  SizedBox(height: screenHeight * 0.28), // Adjust spacing dynamically
                   ElevatedButton(
                     onPressed: () {
                       // Add product to cart
@@ -293,7 +341,7 @@ class ProductDetailsPage extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         'Add to Cart',
-                        style: TextStyle(
+                        style: GoogleFonts.nunito(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,

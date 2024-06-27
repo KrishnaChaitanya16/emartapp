@@ -1,8 +1,23 @@
-import 'package:emartapp/cartmodel.dart';
-import 'package:emartapp/cartprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:emartapp/cartmodel.dart';
+import 'package:emartapp/cartprovider.dart';
+import 'package:emartapp/whishlistprovider.dart';
+
+class Product {
+  final String image;
+  final String name;
+  final String price;
+  final String description;
+
+  Product({
+    required this.image,
+    required this.name,
+    required this.price,
+    required this.description,
+  });
+}
 
 class BeautyPage extends StatelessWidget {
   const BeautyPage({Key? key}) : super(key: key);
@@ -11,6 +26,7 @@ class BeautyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
+
     final List<Product> products = [
       Product(
         image: 'assets/bl2.jpeg',
@@ -80,17 +96,7 @@ class BeautyPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Beauty Products',
-                style: GoogleFonts.nunito(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
+            SizedBox(height: 15,),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: GridView.builder(
@@ -105,6 +111,9 @@ class BeautyPage extends StatelessWidget {
                 itemCount: products.length,
                 itemBuilder: (context, index) {
                   final product = products[index];
+                  final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
+                  final isInWishlist = wishlistProvider.isInWishlist(product.name);
+
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -150,13 +159,32 @@ class BeautyPage extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4),
-                          Text(
-                            product.price,
-                            style: GoogleFonts.nunito(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                product.price,
+                                style: GoogleFonts.nunito(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                  color: isInWishlist ? Colors.red : Colors.grey,
+                                ),
+                                onPressed: () {
+                                  wishlistProvider.toggleWishlist(
+                                    product.name,
+                                    product.image,
+                                    product.price,
+                                    product.description,
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -175,19 +203,17 @@ class BeautyPage extends StatelessWidget {
 class ProductDetailsPage extends StatelessWidget {
   final Product product;
 
-  const ProductDetailsPage({
-    Key? key,
-    required this.product,
-  }) : super(key: key);
+  const ProductDetailsPage({Key? key, required this.product}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final screenHeight = MediaQuery.of(context).size.height;
+    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
+    final isInWishlist = wishlistProvider.isInWishlist(product.name);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Details'),
+        title: Text('Product Details', style: GoogleFonts.nunito()),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
@@ -201,7 +227,7 @@ class ProductDetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12.0),
                 child: Image.asset(
                   product.image,
-                  height: screenHeight * 0.4,
+                  height: MediaQuery.of(context).size.height * 0.4,
                   width: double.infinity,
                   fit: BoxFit.fitHeight,
                 ),
@@ -213,37 +239,55 @@ class ProductDetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        product.name,
+                        style: GoogleFonts.nunito(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isInWishlist ? Icons.favorite : Icons.favorite_border,
+                          color: isInWishlist ? Colors.red : Colors.grey,
+                        ),
+                        onPressed: () {
+                          wishlistProvider.toggleWishlist(
+                            product.name,
+                            product.image,
+                            product.price,
+                            product.description,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(height: 8),
                   Text(
-                    product.description ?? '', // Display description if available
-                    style: TextStyle(
+                    product.description,
+                    style: GoogleFonts.nunito(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   Text(
-                    '${product.price}', // Ensure price string does not contain '₹'
-                    style: TextStyle(
+                    product.price,
+                    style: GoogleFonts.nunito(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.3), // Adjust spacing dynamically
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.28),
                   ElevatedButton(
                     onPressed: () {
-                      // Add product to cart
                       final cartItem = CartItem(
                         imagePath: product.image,
                         name: product.name,
-                        price: double.parse(product.price.replaceAll('₹', '').replaceAll(',', '')),
+                        price: double.parse(product.price.replaceAll('₹', '')),
                       );
                       cartProvider.addToCart(cartItem);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -265,7 +309,7 @@ class ProductDetailsPage extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         'Add to Cart',
-                        style: TextStyle(
+                        style: GoogleFonts.nunito(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -281,18 +325,4 @@ class ProductDetailsPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class Product {
-  final String image;
-  final String name;
-  final String price;
-  final String? description; // Optional description field
-
-  Product({
-    required this.image,
-    required this.name,
-    required this.price,
-    this.description,
-  });
 }

@@ -9,6 +9,9 @@ import 'package:emartapp/pages/Nikepage.dart';
 import 'package:emartapp/pages/Nykaapage.dart';
 
 import 'package:emartapp/pages/Zarapage.dart';
+import 'package:emartapp/pages/profilepage.dart';
+import 'package:emartapp/pages/wishlistpage.dart';
+import 'package:emartapp/whishlistprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -221,6 +224,10 @@ class _HomepageState extends State<Homepage> {
                       title: Text('Profile', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
                       onTap: () {
                         Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ProfilePage()),
+                        );
                       },
                     ),
                     SizedBox(height: 30,),
@@ -229,12 +236,24 @@ class _HomepageState extends State<Homepage> {
                       title: Text('Cart', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
                       onTap: () {
                         Navigator.pop(context);
+
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=> CartPage()));
+
                       },
                     ),
                     SizedBox(height: 30,),
                     ListTile(
                       leading: SizedBox(child: Image.asset('lib/icons/wishlist.png',fit: BoxFit.cover,),height: 20,width: 20,),
                       title: Text('Whishlist',style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => WishlistPage()),
+
+                        );
+
+                      },
                     )
                   ],
                 ),
@@ -412,24 +431,28 @@ class _HomepageState extends State<Homepage> {
         'image': 'assets/deal1.jpeg', // Replace with actual asset path
         'originalPrice': '\₹1,48,900', // Replace with actual original price
         'offerPrice': '\₹1,39,900', // Replace with actual offer price
+        'description': 'Description of Iphone 15 Pro Max', // Replace with actual description
       },
       {
         'name': 'Stylish Shirt', // Replace with actual product name
         'image': 'assets/deal2.png', // Replace with actual asset path
         'originalPrice': '\₹1,999', // Replace with actual original price
         'offerPrice': '\₹999', // Replace with actual offer price
+        'description': 'Description of Stylish Shirt', // Replace with actual description
       },
       {
         'name': 'Nykaa Lipstick', // Replace with actual product name
         'image': 'assets/deal3.jpeg', // Replace with actual asset path
         'originalPrice': '\₹299', // Replace with actual original price
         'offerPrice': '\₹199', // Replace with actual offer price
+        'description': 'Description of Nykaa Lipstick', // Replace with actual description
       },
       {
         'name': 'Nike Jordan', // Replace with actual product name
         'image': 'assets/deal4.png', // Replace with actual asset path
         'originalPrice': '\₹6,999', // Replace with actual original price
         'offerPrice': '\₹4,999', // Replace with actual offer price
+        'description': 'Description of Nike Jordan', // Replace with actual description
       },
     ];
 
@@ -463,7 +486,7 @@ class _HomepageState extends State<Homepage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProductDetailsPage(deal: deals[index],),
+                      builder: (context) => ProductDetailsPage(deal: deals[index]),
                     ),
                   );
                 },
@@ -514,14 +537,41 @@ class _HomepageState extends State<Homepage> {
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              deals[index]['offerPrice'],
-                              style: GoogleFonts.nunito(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
+                            SizedBox(height: 1),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  deals[index]['offerPrice'],
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                Consumer<WishlistProvider>(
+                                  builder: (context, wishlistProvider, child) {
+                                    final isInWishlist =
+                                    wishlistProvider.isInWishlist(deals[index]['name']);
+                                    return IconButton(
+                                      icon: Icon(
+                                        isInWishlist
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: isInWishlist ? Colors.red : Colors.grey,
+                                      ),
+                                      onPressed: () {
+                                        wishlistProvider.toggleWishlist(
+                                          deals[index]['name'],
+                                          deals[index]['image'],
+                                          deals[index]['offerPrice'],
+                                          deals[index]['description'], // Passing description to toggleWishlist
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -536,7 +586,6 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
-
   Widget popularBrandsSection(double screenWidth, double screenHeight, List<String> popularBrands, List<Widget> brandPages) {
     return Padding(
       padding: EdgeInsets.all(16.0),
@@ -672,7 +721,25 @@ class ProductDetailsPage extends StatelessWidget {
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(width: 16), // Add some space between price and button
+                      Consumer<WishlistProvider>(
+                        builder: (context, wishlistProvider, child) {
+                          final isInWishlist = wishlistProvider.isInWishlist(deal['name']);
+                          return IconButton(
+                            icon: Icon(
+                              isInWishlist ? Icons.favorite : Icons.favorite_border,
+                              color: isInWishlist ? Colors.red : Colors.grey,
+                            ),
+                            onPressed: () {
+                              wishlistProvider.toggleWishlist(
+                                deal['name'],
+                                deal['image'],
+                                deal['offerPrice'],
+                                'Description of ${deal['name']}', // Replace with actual description
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ],
@@ -684,7 +751,6 @@ class ProductDetailsPage extends StatelessWidget {
             margin: EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: () {
-                // Implement Add to Cart functionality
                 addToCart(context, deal); // Call function to add to cart
               },
               style: ElevatedButton.styleFrom(
