@@ -10,7 +10,7 @@ class Nikepage extends StatelessWidget {
     final List<Map<String, String>> nikeProducts = [
       {
         'imagePath': 'assets/nikee2.jpeg',
-        'name': 'Product 1',
+        'name': 'Nike Air Max',
         'details': "The Nike Air Max combines iconic style with visible Air cushioning. Featuring a lightweight mesh upper and a supportive midsole, this shoe delivers all-day comfort and cushioning. With its classic design and bold colorways, it's perfect for casual wear and athletic performance.",
 
 
@@ -18,7 +18,7 @@ class Nikepage extends StatelessWidget {
       },
       {
         'imagePath': 'assets/nike2.jpeg',
-        'name': 'Product 2',
+        'name': 'Nike Air Force 1',
         'details': "Embrace timeless style with the Nike Air Force 1. Known for its clean lines and premium leather upper, this shoe offers durability and a classic aesthetic. With a low-cut silhouette and Nike Air cushioning, it provides lightweight comfort and a sleek look for everyday wear."
 
       ,
@@ -26,7 +26,7 @@ class Nikepage extends StatelessWidget {
       },
       {
         'imagePath' : 'assets/nike3.jpeg',
-        'name' : 'Product3',
+        'name' : 'Nike Infnity Run',
         'details': "Elevate your running experience with the Nike React Infinity Run. Designed for long-distance comfort and support, this shoe features a Flyknit upper for a snug fit and React foam cushioning for responsive energy return. With its stable platform and modern design, it's ideal for runners seeking a smooth and reliable ride."
 
       ,
@@ -34,20 +34,26 @@ class Nikepage extends StatelessWidget {
       },
       {
         'imagePath' : 'assets/nike4.png',
-        'name' : 'Product4',
+        'name' : 'Nike Pegasus',
         'details': "Experience versatility and performance with the Nike Zoom Pegasus. Built for speed and comfort, this running shoe features a responsive Zoom Air unit in the forefoot and midsole for cushioned support. With its breathable mesh upper and secure fit, it's suitable for daily training and racing.",
         'price': '89.99'
       },
       {
         'imagePath' :'assets/nike5.jpeg',
-        'name' :'Product5',
-        'details': "Celebrate basketball heritage with the Nike Air Jordan Retro. Inspired by classic Jordan designs, this shoe features premium leather construction and iconic Air Jordan branding. With its high-top silhouette and Air-Sole unit in the heel, it offers enhanced cushioning and support on and off the court.",
+        'name' :'Nike Sneakers',
+        'details': "Explore urban skate culture with the Nike SB Dunk Low. Designed for skateboarding performance, this shoe features a durable suede and leather upper for stability and a Zoom Air unit in the heel for responsive cushioning. With its low-profile design and grippy rubber outsole, it provides traction and boardfeel for optimal skate sessions.",
         'price':'99.99'
       },
       {
         'imagePath': 'assets/nike6.jpeg',
-        'name' : 'Product6',
-        'details': "Explore urban skate culture with the Nike SB Dunk Low. Designed for skateboarding performance, this shoe features a durable suede and leather upper for stability and a Zoom Air unit in the heel for responsive cushioning. With its low-profile design and grippy rubber outsole, it provides traction and boardfeel for optimal skate sessions.",
+        'name' : 'Nike Air Jordan',
+        'details': 'A legendary basketball shoe line, Air Jordans are celebrated for their iconic style and high-performance design. Launched in 1985, each model reflects Michael Jordan\'s legacy with premium materials, innovative cushioning, and bold colorways, making them a cultural icon in both sports and fashion.'
+
+
+
+
+
+      ,
         'price' : '77.99'
       }
     ];

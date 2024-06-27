@@ -31,6 +31,8 @@ class CustomScaffold extends StatelessWidget {
           ),
         ),
         backgroundColor: Colors.white,
+        elevation: 4,
+        // Add elevation for shadow effect
       ),
       body: GridView.builder(
         padding: EdgeInsets.all(16),
@@ -72,7 +74,7 @@ class CustomScaffold extends StatelessWidget {
                       product['imagePath']!,
                       height: 150,
                       width: double.infinity,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                   Padding(

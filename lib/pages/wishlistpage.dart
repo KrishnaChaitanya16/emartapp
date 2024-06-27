@@ -40,7 +40,16 @@ class WishlistPage extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.black),
       ),
       backgroundColor: Colors.white,
-      body: PriceGridView(
+      body: wishlistProvider.wishlistItems.isEmpty
+          ? Center(
+        child: Text(
+          'Your wishlist is empty',
+          style: GoogleFonts.nunito(
+            fontSize: 24,
+          ),
+        ),
+      )
+          : PriceGridView(
         screenWidth: MediaQuery.of(context).size.width,
         screenHeight: MediaQuery.of(context).size.height,
         products: wishlistProvider.wishlistItems.entries.map((entry) {

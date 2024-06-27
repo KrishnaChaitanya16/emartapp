@@ -32,50 +32,58 @@ class BooksPage extends StatelessWidget {
       Product(
         name: 'You Can',
         image: 'assets/book1.jpg',
-        price: '19.99',
-        description: 'Description of Book 1',
+        price: '129.00',
+        description: "Empower yourself. \"You Can\" provides motivational insights and practical advice to help you realize your potential, overcome obstacles, and achieve personal and professional success."
+
+
       ),
       Product(
         name: 'Atomic Habits',
         image: 'assets/habit.jpg',
-        price: '21.99',
-        description: 'Description of Atomic Habits',
+        price: '449.00',
+        description: 'Transform your life with small changes. "Atomic Habits" offers practical strategies to build good habits, break bad ones, and master the tiny behaviors that lead to remarkable results.',
       ),
       Product(
         name: 'Pyschology of Money',
         image: 'assets/money.jpeg',
-        price: '25.99',
-        description: 'Description of Money Master the Game',
+        price: '269.00',
+        description: 'Explore the human side of finance. "The Psychology of Money" delves into the behaviors and attitudes that shape our financial decisions, offering timeless lessons on wealth, greed, and happiness.',
       ),
       Product(
         name: 'The Power of Subconcious Mind',
         image: 'assets/power.jpeg',
-        price: '18.99',
-        description: 'Description of The Power of Habit',
+        price: '149.00',
+        description: "Unlock your mind's potential. This classic book teaches how to harness the power of your subconscious mind to achieve your goals, improve your health, and create the life you desire.",
       ),
       Product(
         name: 'Ikigai',
         image: 'assets/ikigai.jpg',
-        price: '14.99',
-        description: 'Description of Ikigai',
+        price: '249.00',
+        description: 'Discover your purpose. "Ikigai" explores the Japanese concept of finding joy through purpose, offering insights into living a longer, more fulfilling life by doing what you love.',
+
+
       ),
       Product(
         name: "Don't belive everyhting you Think",
         image: 'assets/db.jpg',
-        price: '16.99',
-        description: 'Description of Deep Work',
+        price: '169.00',
+        description: 'Challenge your thoughts. This book provides tools to understand and reframe negative thinking, helping you to cultivate a positive mindset and improve your overall well-being.',
+
+
       ),
       Product(
         name: 'One Arranged Murder',
         image: 'assets/oa.jpeg',
-        price: '19.99',
-        description: 'Description of Originals',
+        price: '172.00',
+        description: 'A thrilling mystery. "One Arranged Murder" blends romance and suspense in a gripping tale of love, betrayal, and a murder investigation that keeps you guessing until the end.',
+
+
       ),
       Product(
         name: 'Rich Dad Poor Dad',
         image: 'assets/rd.jpg',
-        price: '22.99',
-        description: 'Description of Rich Dad Poor Dad',
+        price: '322.00',
+        description: "Financial wisdom simplified. \"Rich Dad Poor Dad \" shares lessons on money management and investing, contrasting the financial philosophies of the author's two \" dads \" to offer valuable insights into wealth-building.",
       ),
       // Add more products as needed
     ];

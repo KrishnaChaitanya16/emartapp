@@ -32,8 +32,8 @@ class ProfilePage extends StatelessWidget {
           SizedBox(height: screenHeight * 0.05),
           Center(
             child: CircleAvatar(
-              radius: screenWidth * 0.2,
-              backgroundImage: AssetImage('assets/user.png'),
+              radius: screenWidth * 0.21,
+              backgroundImage: AssetImage('lib/icons/user.png'),
               backgroundColor: Colors.grey.shade300,
               // Replace with actual image asset or fetch from Firebase
             ),

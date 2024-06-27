@@ -333,7 +333,7 @@ class _HomepageState extends State<Homepage> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: selectedIndex == index ? Colors.black : Colors.grey,
+                              color: Colors.black.withOpacity(0.6), // Always black border
                               width: 2,
                             ),
                           ),
@@ -347,7 +347,7 @@ class _HomepageState extends State<Homepage> {
                           filteredCategories[index]['name']!,
                           style: GoogleFonts.nunito(
                             fontSize: 14,
-                            color: selectedIndex == index ? Colors.black : Colors.grey,
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -357,7 +357,7 @@ class _HomepageState extends State<Homepage> {
               },
             ),
           ),
-          Expanded(
+        Expanded(
             child: ListView(
               children: [
                 featuredSection(screenWidth, screenHeight),

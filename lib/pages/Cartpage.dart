@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts package
 import 'package:emartapp/cartprovider.dart'; // Import your CartProvider
 
 class CartPage extends StatelessWidget {
@@ -10,10 +11,25 @@ class CartPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cart'),
+        title: Text(
+          'Cart',
+          style: GoogleFonts.nunito(
+            textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        backgroundColor: Colors.white,
       ),
-      backgroundColor: Colors.white, // Set background color to white
-      body: ListView.builder(
+      backgroundColor: Colors.white,
+      body: cartItems.isEmpty
+          ? Center(
+        child: Text(
+          'Your cart is empty',
+          style: GoogleFonts.nunito(
+            textStyle: TextStyle(fontSize: 24),
+          ),
+        ),
+      )
+          : ListView.builder(
         itemCount: cartItems.length,
         itemBuilder: (context, index) {
           final cartItem = cartItems[index];
@@ -27,7 +43,7 @@ class CartPage extends StatelessWidget {
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 3), // changes position of shadow
+                  offset: Offset(0, 3),
                 ),
               ],
             ),
@@ -45,7 +61,7 @@ class CartPage extends StatelessWidget {
                           color: Colors.grey.withOpacity(0.5),
                           spreadRadius: 1,
                           blurRadius: 2,
-                          offset: Offset(0, 1), // changes position of shadow
+                          offset: Offset(0, 1),
                         ),
                       ],
                     ),
@@ -57,9 +73,15 @@ class CartPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  title: Text(cartItem.name),
-                  subtitle: Text('₹${cartItem.price}'),
-                  trailing: SizedBox.shrink(), // Remove trailing delete icon
+                  title: Text(
+                    cartItem.name,
+                    style: GoogleFonts.nunito(),
+                  ),
+                  subtitle: Text(
+                    '₹${cartItem.price}',
+                    style: GoogleFonts.nunito(),
+                  ),
+                  trailing: SizedBox.shrink(),
                 ),
                 Positioned(
                   top: 16,
@@ -78,12 +100,12 @@ class CartPage extends StatelessWidget {
                             cartProvider.decrementItem(cartItem);
                           },
                         ),
-                        SizedBox(width: 4), // Adjust spacing as needed
+                        SizedBox(width: 4),
                         Text(
                           '${cartItem.quantity}',
-                          style: TextStyle(fontSize: 16),
+                          style: GoogleFonts.nunito(fontSize: 16),
                         ),
-                        SizedBox(width: 4), // Adjust spacing as needed
+                        SizedBox(width: 4),
                         IconButton(
                           icon: Icon(Icons.add),
                           onPressed: () {
@@ -99,7 +121,8 @@ class CartPage extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: cartItems.isNotEmpty
+          ? Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -108,7 +131,7 @@ class CartPage extends StatelessWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(0, -3), // changes position of shadow
+              offset: Offset(0, -3),
             ),
           ],
         ),
@@ -118,8 +141,13 @@ class CartPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total: ₹${cartProvider.getTotalPrice().toStringAsFixed(2)}', // Ensure total price is formatted as rupees
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                'Total: ₹${cartProvider.getTotalPrice().toStringAsFixed(2)}',
+                style: GoogleFonts.nunito(
+                  textStyle: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -132,13 +160,14 @@ class CartPage extends StatelessWidget {
                 ),
                 child: Text(
                   'Proceed to Pay',
-                  style: TextStyle(fontSize: 16),
+                  style: GoogleFonts.nunito(fontSize: 16),
                 ),
               ),
             ],
           ),
         ),
-      ),
+      )
+          : null,
     );
   }
 }

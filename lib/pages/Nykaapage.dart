@@ -11,7 +11,7 @@ class Nykaapage extends StatelessWidget {
     final List<Map<String, String>> nykaaProducts = [
       {
         'imagePath': 'assets/nykaa1.jpeg',
-        'name': 'Product 1',
+        'name': 'MakeUp Foundation',
         'details': "Achieve flawless skin with Nykaa's Foundation, designed to provide seamless coverage and a natural finish. Enriched with skin-loving ingredients like SPF and antioxidants, it not only conceals imperfections but also protects and hydrates your skin throughout the day. Available in a variety of shades to match every skin tone, Nykaa's Foundation ensures a radiant complexion with a lightweight feel, perfect for all-day wear."
 
 
@@ -23,25 +23,25 @@ class Nykaapage extends StatelessWidget {
       },
       {
         'imagePath': 'assets/nykaa2.jpeg',
-        'name': 'Product 2',
+        'name': 'Face Serum',
         'details': "Nykaa's Serums deliver targeted skincare benefits with potent ingredients like vitamin C and hyaluronic acid. From brightening to anti-aging, each serum revitalizes and nourishes your skin for a radiant, youthful glow.",
         'price': '49.99'
       },
       {
         'imagePath' : 'assets/nykaa3.jpeg',
-        'name' : 'Product3',
+        'name' : 'Liquid Foundation',
         'details': "Discover Nykaa's Liquid Foundation, your secret to a flawless complexion. Formulated with lightweight yet buildable coverage, this foundation effortlessly blends into the skin for a natural finish. Enriched with hydrating ingredients and available in a spectrum of shades, it provides lasting comfort and a radiant glow. Whether you prefer a dewy or matte look, Nykaa's Liquid Foundation caters to all skin types, ensuring a seamless and luminous complexion with every application.",
         'price': '39.99'
       },
       {
         'imagePath' : 'assets/nykaa4.jpeg',
-        'name' : 'Product4',
+        'name' : 'Lipstick',
         'details':"Indulge in Nykaa's Maroon Lipstick, a bold and sophisticated shade that makes a statement. With its rich pigment and creamy texture, this lipstick glides on smoothly, delivering intense color and long-lasting wear. Perfect for adding a touch of glamour to any look, Nykaa's Maroon Lipstick promises a luxurious finish that enhances your natural beauty with every application.",
         'price': '89.99'
       },
       {
         'imagePath' :'assets/nykaa5.jpeg',
-        'name' :'Product5',
+        'name' :'Moisturizing Serum',
         'details': "Nykaa's Serums deliver targeted skincare benefits with potent ingredients like vitamin C and hyaluronic acid. From brightening to anti-aging, each serum revitalizes and nourishes your skin for a radiant, youthful glow."
 
       ,
@@ -49,7 +49,7 @@ class Nykaapage extends StatelessWidget {
       },
       {
         'imagePath': 'assets/nykaa6.jpeg',
-        'name' : 'Product6',
+        'name' : 'Body Lotion',
         'details': "Indulge in Nykaa's Body Lotions, enriched with nourishing oils and vitamins. These luxurious formulations deeply hydrate and soften your skin, leaving it velvety smooth with a delightful fragrance."
 
       ,

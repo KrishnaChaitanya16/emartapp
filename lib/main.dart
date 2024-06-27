@@ -1,5 +1,6 @@
 import 'package:emartapp/cartprovider.dart';
 import 'package:emartapp/pages/Loginpage.dart';
+import 'package:emartapp/pages/splashscreen.dart';
 import 'package:emartapp/whishlistprovider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,25 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Loginpage(),
+      home: SplashScreen(),
+      theme: ThemeData(
+        primaryColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+         shadowColor: Colors.grey.shade300,
+
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(10), // Adjust the radius as needed
+            ),
+          ),
+
+
+
+        )
+      ),
     );
   }
 }

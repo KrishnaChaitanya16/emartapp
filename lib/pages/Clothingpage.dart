@@ -18,52 +18,52 @@ class ClothingPage extends StatelessWidget {
         'name': 'Men\'s Shirt',
         'image': 'assets/shirt.jpeg',
         'description': 'Comfortable and stylish shirt for men.',
-        'offerPrice': '99.99',
+        'offerPrice': '799.99',
       },
       {
         'name': 'Men\'s T-shirt',
         'image': 'assets/tshirt.jpeg',
         'description': 'Casual t-shirt suitable for daily wear.',
-        'offerPrice': '49.99',
+        'offerPrice': '599.99',
       },
       {
         'name': 'Men\'s Pant',
         'image': 'assets/pant.jpeg',
         'description': 'Classic pant with a modern twist.',
-        'offerPrice': '129.99',
+        'offerPrice': '499.99',
       },
       {
         'name': 'Men\'s Cargos',
         'image': 'assets/cargos.jpeg',
         'description': 'Durable and comfortable cargo pants.',
-        'offerPrice': '79.99',
+        'offerPrice': '699.99',
       },
     ];
 
     final List<Map<String, dynamic>> womenProducts = [
       {
-        'name': 'Women\'s Dress 1',
+        'name': 'Women\'s Green Dress',
         'image': 'assets/fd1.jpg',
         'description': 'Elegant and stylish dress for women.',
-        'offerPrice': '149.99',
+        'offerPrice': '1199.99',
       },
       {
-        'name': 'Women\'s Dress 2',
+        'name': 'Women\'s Designer Dress ',
         'image': 'assets/fd2.jpeg',
         'description': 'Beautiful dress perfect for special occasions.',
-        'offerPrice': '199.99',
+        'offerPrice': '1499.99',
       },
       {
-        'name': 'Women\'s Dress 3',
+        'name': 'Women\'s Purple Dress',
         'image': 'assets/fd3.jpeg',
         'description': 'Comfortable and trendy dress for everyday wear.',
-        'offerPrice': '79.99',
+        'offerPrice': '1299.99',
       },
       {
-        'name': 'Women\'s Dress 4',
+        'name': 'Women\'s Traditional wear',
         'image': 'assets/fd4.jpeg',
         'description': 'Chic and fashionable dress for modern women.',
-        'offerPrice': '129.99',
+        'offerPrice': '2999.99',
       },
     ];
 
