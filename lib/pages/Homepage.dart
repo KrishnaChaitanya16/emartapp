@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emartapp/cartmodel.dart';
 import 'package:emartapp/cartprovider.dart';
 import 'package:emartapp/pages/Applepage.dart';
@@ -424,38 +425,6 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget dealsOfTheDaySection(double screenWidth, double screenHeight) {
-    // Mock data for deals (replace with actual data model if needed)
-    final List<Map<String, dynamic>> deals = [
-      {
-        'name': 'Iphone 15 Pro Max', // Replace with actual product name
-        'image': 'assets/deal1.jpeg', // Replace with actual asset path
-        'originalPrice': '\₹1,48,900', // Replace with actual original price
-        'offerPrice': '\₹1,39,900', // Replace with actual offer price
-        'description': 'Description of Iphone 15 Pro Max', // Replace with actual description
-      },
-      {
-        'name': 'Stylish Shirt', // Replace with actual product name
-        'image': 'assets/deal2.png', // Replace with actual asset path
-        'originalPrice': '\₹1,999', // Replace with actual original price
-        'offerPrice': '\₹999', // Replace with actual offer price
-        'description': 'Description of Stylish Shirt', // Replace with actual description
-      },
-      {
-        'name': 'Nykaa Lipstick', // Replace with actual product name
-        'image': 'assets/deal3.jpeg', // Replace with actual asset path
-        'originalPrice': '\₹299', // Replace with actual original price
-        'offerPrice': '\₹199', // Replace with actual offer price
-        'description': 'Description of Nykaa Lipstick', // Replace with actual description
-      },
-      {
-        'name': 'Nike Jordan', // Replace with actual product name
-        'image': 'assets/deal4.png', // Replace with actual asset path
-        'originalPrice': '\₹6,999', // Replace with actual original price
-        'offerPrice': '\₹4,999', // Replace with actual offer price
-        'description': 'Description of Nike Jordan', // Replace with actual description
-      },
-    ];
-
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
@@ -470,115 +439,136 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
           SizedBox(height: 10),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 8.0,
-              crossAxisSpacing: 8.0,
-              childAspectRatio: 0.8, // Adjust aspect ratio as needed
-            ),
-            itemCount: deals.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductDetailsPage(deal: deals[index]),
-                    ),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                        child: Image.asset(
-                          deals[index]['image'],
-                          width: double.infinity,
-                          height: screenHeight * 0.15, // Adjust height as needed
-                          fit: BoxFit.fitHeight,
+          FutureBuilder<QuerySnapshot>(
+            future: FirebaseFirestore.instance.collection('dealsoftheday').get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return Center(child: Text('No deals found.'));
+              }
+
+              final deals = snapshot.data!.docs.map((doc) {
+                return {
+                  'name': doc['name'] as String,
+                  'image': doc['image'] as String,
+                  'originalPrice': doc['originalprice'] as String,
+                  'offerPrice': doc['offerprice'] as String,
+                  'description': doc['description'] as String,
+                };
+              }).toList();
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 8.0,
+                  crossAxisSpacing: 8.0,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: deals.length,
+                itemBuilder: (context, index) {
+                  final deal = deals[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailsPage(deal: deal),
                         ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              deals[index]['name'],
-                              style: GoogleFonts.nunito(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                            child: Image.asset(
+                              deal['image']!,
+                              width: double.infinity,
+                              height: screenHeight * 0.15,
+                              fit: BoxFit.fitHeight,
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              deals[index]['originalPrice'],
-                              style: GoogleFonts.nunito(
-                                fontSize: 16,
-                                color: Colors.grey,
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                            SizedBox(height: 1),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  deals[index]['offerPrice'],
+                                  deal['name']!,
                                   style: GoogleFonts.nunito(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                     color: Colors.black,
                                   ),
                                 ),
-                                Consumer<WishlistProvider>(
-                                  builder: (context, wishlistProvider, child) {
-                                    final isInWishlist =
-                                    wishlistProvider.isInWishlist(deals[index]['name']);
-                                    return IconButton(
-                                      icon: Icon(
-                                        isInWishlist
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: isInWishlist ? Colors.red : Colors.grey,
+                                SizedBox(height: 4),
+                                Text(
+                                  '₹${deal['originalPrice']!}',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                                SizedBox(height: 1),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '₹${deal['offerPrice']!}',
+                                      style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
                                       ),
-                                      onPressed: () {
-                                        wishlistProvider.toggleWishlist(
-                                          deals[index]['name'],
-                                          deals[index]['image'],
-                                          deals[index]['offerPrice'],
-                                          deals[index]['description'], // Passing description to toggleWishlist
+                                    ),
+                                    Consumer<WishlistProvider>(
+                                      builder: (context, wishlistProvider, child) {
+                                        final isInWishlist = wishlistProvider.isInWishlist(deal['name']!);
+                                        return IconButton(
+                                          icon: Icon(
+                                            isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                            color: isInWishlist ? Colors.red : Colors.grey,
+                                          ),
+                                          onPressed: () {
+                                            wishlistProvider.toggleWishlist(
+                                              deal['name']!,
+                                              deal['image']!,
+                                              deal['offerPrice']!,
+                                              deal['description']!,
+                                            );
+                                          },
                                         );
                                       },
-                                    );
-                                  },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
           ),

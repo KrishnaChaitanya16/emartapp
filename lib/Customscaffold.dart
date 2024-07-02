@@ -1,19 +1,18 @@
-import 'package:emartapp/cartmodel.dart';
-import 'package:emartapp/whishlistprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:emartapp/cartprovider.dart'; // Import your CartProvider
+import 'package:emartapp/cartmodel.dart';
+import 'package:emartapp/cartprovider.dart';
+import 'package:emartapp/whishlistprovider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CustomScaffold extends StatelessWidget {
   final String pageTitle;
-  final List<Map<String, String>> productList;
-  final bool showAppBarLeading;
+  final String collectionName; // Name of the Firestore collection
 
   const CustomScaffold({
     required this.pageTitle,
-    required this.productList,
-    this.showAppBarLeading = true,
+    required this.collectionName,
     Key? key,
   }) : super(key: key);
 
@@ -32,105 +31,120 @@ class CustomScaffold extends StatelessWidget {
         ),
         backgroundColor: Colors.white,
         elevation: 4,
-        // Add elevation for shadow effect
       ),
-      body: GridView.builder(
-        padding: EdgeInsets.all(16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16.0,
-          mainAxisSpacing: 16.0,
-          childAspectRatio: 0.75,
-        ),
-        itemCount: productList.length,
-        itemBuilder: (context, index) {
-          final product = productList[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProductDetailsPage(
-                    imagePath: product['imagePath']!,
-                    name: product['name']!,
-                    price: product['price']!,
-                    description: product['details']!,
-                  ),
-                ),
-              );
-            },
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                    child: Image.asset(
-                      product['imagePath']!,
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.fitHeight,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection(collectionName).snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final List<DocumentSnapshot> documents = snapshot.data!.docs;
+
+          return GridView.builder(
+            padding: EdgeInsets.all(16),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+              childAspectRatio: 0.75,
+            ),
+            itemCount: documents.length,
+            itemBuilder: (context, index) {
+              final product = documents[index].data() as Map<String, dynamic>;
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailsPage(
+                        product: product,
+                      ),
                     ),
+                  );
+                },
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                        child: Image.asset(
+                          product['imagepath'],
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                product['name']!,
-                                style: GoogleFonts.nunito(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Consumer<WishlistProvider>(
-                                builder: (context, wishlistProvider, child) {
-                                  final isInWishlist = wishlistProvider.isInWishlist(product['name']!);
-                                  return IconButton(
-                                    icon: Icon(
-                                      isInWishlist ? Icons.favorite : Icons.favorite_border,
-                                      color: isInWishlist ? Colors.red : Colors.grey,
+                            Stack(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    product['name'],
+                                    style: GoogleFonts.nunito(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
-                                    onPressed: () {
-                                      wishlistProvider.toggleWishlist(
-                                        product['name']!,
-                                        product['imagePath']!,
-                                        product['price']!,
-                                        product['details']!,
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Consumer<WishlistProvider>(
+                                    builder: (context, wishlistProvider, child) {
+                                      final isInWishlist = wishlistProvider.isInWishlist(product['name']);
+                                      return IconButton(
+                                        icon: Icon(
+                                          isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                          color: isInWishlist ? Colors.red : Colors.grey,
+                                        ),
+                                        onPressed: () {
+                                          wishlistProvider.toggleWishlist(
+                                            product['name'],
+                                            product['imagepath'],
+                                            product['price'].toString(),
+                                            product['details'],
+                                          );
+                                        },
                                       );
                                     },
-                                  );
-                                },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              '₹${product['price']}',
+                              style: GoogleFonts.nunito(
+                                color: Colors.black,
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          '₹${product['price']!}',
-                          style: GoogleFonts.nunito(
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -139,17 +153,11 @@ class CustomScaffold extends StatelessWidget {
 }
 
 class ProductDetailsPage extends StatelessWidget {
-  final String imagePath;
-  final String name;
-  final String price;
-  final String description;
+  final Map<String, dynamic> product;
 
   const ProductDetailsPage({
     Key? key,
-    required this.imagePath,
-    required this.name,
-    required this.price,
-    required this.description,
+    required this.product,
   }) : super(key: key);
 
   @override
@@ -183,7 +191,7 @@ class ProductDetailsPage extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12.0),
                         child: Image.asset(
-                          imagePath,
+                          product['imagepath'],
                           height: 400,
                           width: double.infinity,
                           fit: BoxFit.cover,
@@ -201,7 +209,7 @@ class ProductDetailsPage extends StatelessWidget {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  name,
+                                  product['name'],
                                   style: GoogleFonts.nunito(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
@@ -212,7 +220,7 @@ class ProductDetailsPage extends StatelessWidget {
                                 right: 0,
                                 child: Consumer<WishlistProvider>(
                                   builder: (context, wishlistProvider, child) {
-                                    final isInWishlist = wishlistProvider.isInWishlist(name);
+                                    final isInWishlist = wishlistProvider.isInWishlist(product['name']);
                                     return IconButton(
                                       icon: Icon(
                                         isInWishlist ? Icons.favorite : Icons.favorite_border,
@@ -220,10 +228,10 @@ class ProductDetailsPage extends StatelessWidget {
                                       ),
                                       onPressed: () {
                                         wishlistProvider.toggleWishlist(
-                                          name,
-                                          imagePath,
-                                          price,
-                                          description,
+                                          product['name'],
+                                          product['imagepath'],
+                                          product['price'].toString(),
+                                          product['details'],
                                         );
                                       },
                                     );
@@ -234,7 +242,7 @@ class ProductDetailsPage extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            description,
+                            product['details'],
                             style: GoogleFonts.nunito(
                               fontSize: 16,
                               color: Colors.grey,
@@ -242,7 +250,7 @@ class ProductDetailsPage extends StatelessWidget {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            '₹$price',
+                            '₹${product['price']}',
                             style: GoogleFonts.nunito(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -257,9 +265,9 @@ class ProductDetailsPage extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           final cartItem = CartItem(
-                            imagePath: imagePath,
-                            name: name,
-                            price: double.parse(price.replaceAll('₹', '').replaceAll(',', '')),
+                            imagePath: product['imagepath'],
+                            name: product['name'],
+                            price: double.parse(product['price'].replaceAll('₹', '').replaceAll(',', '')),
                           );
                           cartProvider.addToCart(cartItem);
                           ScaffoldMessenger.of(context).showSnackBar(

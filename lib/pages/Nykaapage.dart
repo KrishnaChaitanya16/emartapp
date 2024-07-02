@@ -60,7 +60,8 @@ class Nykaapage extends StatelessWidget {
 
     return CustomScaffold(
       pageTitle: 'Nykaa Products',
-      productList: nykaaProducts,
+
+      collectionName:'nykaa'
     );
   }
 }

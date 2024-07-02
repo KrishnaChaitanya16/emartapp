@@ -1,12 +1,14 @@
+import 'package:emartapp/whishlistprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../cartmodel.dart';
 import '../cartprovider.dart';
-import '../whishlistprovider.dart';
+ // Corrected import path
 
-
+// Product model class
 class Product {
   final String name;
   final String image;
@@ -19,101 +21,68 @@ class Product {
     required this.price,
     required this.description,
   });
+
+  factory Product.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return Product(
+      name: data['name'] ?? '',
+      image: data['image'] ?? '',
+      price: data['price'] ?? '',
+      description: data['description'] ?? '',
+    );
+  }
 }
 
+// AccessoriesPage widget
 class AccessoriesPage extends StatelessWidget {
   const AccessoriesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final List<Product> products = [
-      Product(
-        name: 'LV Handbag',
-        image: 'assets/handbag1.png',
-        price: '180000.00',
-        description: 'Elegant and stylish handbag for all occasions.',
-      ),
-      Product(
-        name: 'Sunglasses ',
-        image: 'assets/sunglasses1.jpg',
-        price: '799.99',
-        description: 'Fashionable sunglasses to protect your eyes.',
-      ),
-      Product(
-        name: ' Stylish Watch',
-        image: 'assets/watch.png',
-        price: '1200.00',
-        description: 'Luxury watch with a sleek design.',
-      ),
-      Product(
-        name: ' Stylish Glasses',
-        image: 'assets/sunglasses2.jpeg',
-        price: '899.99',
-        description: 'Trendy sunglasses for a modern look.',
-      ),
-      Product(
-        name: 'Brown Handbag',
-        image: 'assets/handbag2.jpeg',
-        price: '2999.99',
-        description: 'Spacious and durable handbag for everyday use.',
-      ),
-      Product(
-        name: 'Earrings',
-        image: 'assets/earrings.jpg',
-        price: '700.00',
-        description: 'Beautiful earrings to complement any outfit.',
-      ),
-      Product(
-        name: 'Bracelet',
-        image: 'assets/braclet.jpg',
-        price: '999.99',
-        description: 'Stylish bracelet to enhance your look.',
-      ),
-      Product(
-        name: 'Ring',
-        image: 'assets/ring1.jpeg',
-        price: '1800.00',
-        description: 'Elegant ring for special occasions.',
-      ),
-      // Add more products as needed
-    ];
-
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          'Accessories',
-          style: GoogleFonts.nunito(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        title: Text('Accessories'),
         backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 15,),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('accessories').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: PriceGridView(
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-                products: products,
-              ),
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No data available'));
+          }
+
+          List<Product> products = snapshot.data!.docs.map((doc) {
+            return Product.fromFirestore(doc);
+          }).toList();
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 15,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: PriceGridView(
+                    screenWidth: MediaQuery.of(context).size.width,
+                    screenHeight: MediaQuery.of(context).size.height,
+                    products: products,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 }
 
+// PriceGridView widget
 class PriceGridView extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
@@ -229,7 +198,7 @@ class PriceGridView extends StatelessWidget {
   }
 }
 
-
+// ProductDetailsPage widget
 class ProductDetailsPage extends StatelessWidget {
   final String imagePath;
   final String name;
@@ -247,14 +216,14 @@ class ProductDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: false);
     final screenHeight = MediaQuery.of(context).size.height;
-    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
 
     final isInWishlist = wishlistProvider.isInWishlist(name);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Details', style: GoogleFonts.nunito()),
+        title: Text('Product Details'),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
@@ -268,7 +237,7 @@ class ProductDetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12.0),
                 child: Image.asset(
                   imagePath,
-                  height: screenHeight * 0.4, // Adjust image height as needed
+                  height: screenHeight * 0.4,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
@@ -314,18 +283,17 @@ class ProductDetailsPage extends StatelessWidget {
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
+                  SizedBox(height: screenHeight * 0.02),
                   Text(
-                    '₹$price', // Ensure price string does not contain '$'
+                    '₹$price',
                     style: GoogleFonts.nunito(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.28), // Adjust spacing dynamically
+                  SizedBox(height: screenHeight * 0.28),
                   ElevatedButton(
                     onPressed: () {
-                      // Add product to cart
                       final cartItem = CartItem(
                         imagePath: imagePath,
                         name: name,

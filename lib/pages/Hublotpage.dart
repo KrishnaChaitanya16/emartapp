@@ -49,7 +49,8 @@ class Hublotpage extends StatelessWidget {
 
     return CustomScaffold(
       pageTitle: 'Hublot Products',
-      productList: HublotProducts,
+
+      collectionName: 'hublot'
     );
   }
 }

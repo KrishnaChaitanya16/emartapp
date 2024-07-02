@@ -41,6 +41,8 @@ dependencies:
   provider:
   animated_text_kit:
   widget_and_text_animator:
+  cloud_firestore:
+  intl:
 
 dev_dependencies:
   flutter_test:

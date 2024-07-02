@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts package
 import 'package:emartapp/cartprovider.dart'; // Import your CartProvider
@@ -8,6 +9,14 @@ class CartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
     final cartItems = cartProvider.cartItems;
+    final totalPrice = cartProvider.getTotalPrice();
+
+    // Format total price in Indian numbering system
+    final formattedTotalPrice = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 2,
+    ).format(totalPrice);
 
     return Scaffold(
       appBar: AppBar(
@@ -97,7 +106,11 @@ class CartPage extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.remove),
                           onPressed: () {
-                            cartProvider.decrementItem(cartItem);
+                            if (cartItem.quantity > 1) {
+                              cartProvider.decrementItem(cartItem);
+                            } else {
+                              cartProvider.removeFromCart(cartItem);
+                            }
                           },
                         ),
                         SizedBox(width: 4),
@@ -141,7 +154,7 @@ class CartPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total: ₹${cartProvider.getTotalPrice().toStringAsFixed(2)}',
+                'Total: $formattedTotalPrice',
                 style: GoogleFonts.nunito(
                   textStyle: TextStyle(
                     fontSize: 24,

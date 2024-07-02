@@ -1,12 +1,12 @@
-import 'package:emartapp/cartmodel.dart';
-import 'package:emartapp/cartprovider.dart';
-import 'package:emartapp/whishlistprovider.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:emartapp/pages/Appbarwidget.dart';
-import 'package:emartapp/pages/Drawer%20widget.dart';
-import 'package:emartapp/pages/GridViewwidget.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../cartmodel.dart';
+import '../cartprovider.dart';
+import '../whishlistprovider.dart';
+import '../pages/ProductDetailsPage.dart'; // Adjust import as per your file structure
 
 // Define the product model
 class Product {
@@ -29,60 +29,6 @@ class ElectronicsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final List<Product> products = [
-      Product(
-        name: 'IPhone15Pro Max',
-        image: 'assets/deal1.jpeg',
-        price: '139900.00',
-        description: '',
-      ),
-      Product(
-        name: 'Whirpool Fridge',
-        image: 'assets/fridge1.png',
-        price: '79900.00',
-        description: 'Spacious and energy-efficient fridge.',
-      ),
-      Product(
-        name: 'Samsung Fridge',
-        image: 'assets/fridge2.png',
-        price: '85000.00',
-        description: 'Compact fridge perfect for small spaces.',
-      ),
-      Product(
-        name: 'Headphones ',
-        image: 'assets/headphones2.png',
-        price: '4449.00',
-        description: 'High-quality headphones with noise cancellation.',
-      ),
-      Product(
-        name: 'LG TV',
-        image: 'assets/lgtv.jpeg',
-        price: '15990.00',
-        description: 'Ultra HD Smart TV with stunning visuals.',
-      ),
-      Product(
-        name: 'Samsung S23',
-        image: 'assets/samsungphone.jpg',
-        price: '79999.00',
-        description: 'Latest Samsung smartphone with advanced features.',
-      ),
-      Product(
-        name: 'OnePlus TV',
-        image: 'assets/oneplustv.jpeg',
-        price: '2299.00',
-        description: 'Smart TV with excellent picture quality.',
-      ),
-      Product(
-        name: 'Sony Headphones',
-        image: 'assets/sonyheadphones.jpg',
-        price: '3998.99',
-        description: 'Comfortable headphones with great sound.',
-      ),
-      // Add more products as needed
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -97,21 +43,37 @@ class ElectronicsPage extends StatelessWidget {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 15,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: PriceGridView(
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-                products: products,
-              ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('electronics').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          List<Product> products = snapshot.data!.docs.map((doc) {
+            return Product(
+              name: doc['name'] ?? '',
+              image: doc['image'] ?? '',
+              price: doc['price'] ?? '',
+              description: doc['description'] ?? '',
+            );
+          }).toList();
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 15,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: PriceGridView(
+                    products: products,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -119,18 +81,16 @@ class ElectronicsPage extends StatelessWidget {
 
 // PriceGridView class
 class PriceGridView extends StatelessWidget {
-  final double screenWidth;
-  final double screenHeight;
   final List<Product> products;
 
   const PriceGridView({
-    required this.screenWidth,
-    required this.screenHeight,
     required this.products,
   });
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -189,7 +149,7 @@ class PriceGridView extends StatelessWidget {
                   children: [
                     Text(
                       product.name,
-                      style: TextStyle(
+                      style: GoogleFonts.nunito(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -219,7 +179,7 @@ class PriceGridView extends StatelessWidget {
                 SizedBox(height: 4),
                 Text(
                   '₹${product.price}',
-                  style: TextStyle(
+                  style: GoogleFonts.nunito(
                     fontSize: 14,
                     color: Colors.black,
                   ),
@@ -229,145 +189,6 @@ class PriceGridView extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-// ProductDetailsPage class
-class ProductDetailsPage extends StatelessWidget {
-  final String imagePath;
-  final String name;
-  final String price;
-  final String description;
-
-  const ProductDetailsPage({
-    Key? key,
-    required this.imagePath,
-    required this.name,
-    required this.price,
-    required this.description,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final screenHeight = MediaQuery.of(context).size.height;
-    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
-
-    final isInWishlist = wishlistProvider.isInWishlist(name);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Product Details', style: GoogleFonts.nunito()),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                child: Image.asset(
-                  imagePath,
-                  height: screenHeight * 0.4, // Adjust image height as needed
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        name,
-                        style: GoogleFonts.nunito(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          isInWishlist ? Icons.favorite : Icons.favorite_border,
-                          color: isInWishlist ? Colors.red : Colors.grey,
-                        ),
-                        onPressed: () {
-                          wishlistProvider.toggleWishlist(
-                            name,
-                            imagePath,
-                            price,
-                            description,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    description,
-                    style: GoogleFonts.nunito(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
-                  Text(
-                    '₹$price', // Ensure price string does not contain '$'
-                    style: GoogleFonts.nunito(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.28), // Adjust spacing dynamically
-                  ElevatedButton(
-                    onPressed: () {
-                      // Add product to cart
-                      final cartItem = CartItem(
-                        imagePath: imagePath,
-                        name: name,
-                        price: double.parse(price.replaceAll('₹', '').replaceAll(',', '')),
-                      );
-                      cartProvider.addToCart(cartItem);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Added to cart'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.black,
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Add to Cart',
-                        style: GoogleFonts.nunito(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
