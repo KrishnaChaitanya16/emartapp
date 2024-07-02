@@ -183,7 +183,7 @@ class ClothingPage extends StatelessWidget {
   }
 }
 
-class ProductDetailsPage extends StatelessWidget {
+class ProductDetailsPage extends StatefulWidget {
   final String imagePath;
   final String name;
   final String price;
@@ -198,12 +198,20 @@ class ProductDetailsPage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _ProductDetailsPageState createState() => _ProductDetailsPageState();
+}
+
+class _ProductDetailsPageState extends State<ProductDetailsPage> {
+  String selectedSize = '';
+  String selectedColor = '';
+
+  @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final screenHeight = MediaQuery.of(context).size.height;
     final wishlistProvider = Provider.of<WishlistProvider>(context, listen: true);
 
-    final isInWishlist = wishlistProvider.isInWishlist(name);
+    final isInWishlist = wishlistProvider.isInWishlist(widget.name);
 
     return Scaffold(
       appBar: AppBar(
@@ -212,112 +220,251 @@ class ProductDetailsPage extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.black),
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                child: Image.asset(
-                  imagePath,
-                  height: screenHeight * 0.4, // Adjust image height as needed
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        name,
-                        style: GoogleFonts.nunito(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: Image.asset(
+                        widget.imagePath,
+                        height: screenHeight * 0.4, // Adjust image height as needed
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
-                      IconButton(
-                        icon: Icon(
-                          isInWishlist ? Icons.favorite : Icons.favorite_border,
-                          color: isInWishlist ? Colors.red : Colors.grey,
-                        ),
-                        onPressed: () {
-                          wishlistProvider.toggleWishlist(
-                            name,
-                            imagePath,
-                            price,
-                            description,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    description,
-                    style: GoogleFonts.nunito(
-                      fontSize: 16,
-                      color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
-                  Text(
-                    '₹$price', // Ensure price string does not contain '$'
-                    style: GoogleFonts.nunito(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.28), // Adjust spacing dynamically
-                  ElevatedButton(
-                    onPressed: () {
-                      // Add product to cart
-                      final cartItem = CartItem(
-                        imagePath: imagePath,
-                        name: name,
-                        price: double.parse(price.replaceAll('₹', '').replaceAll(',', '')),
-                      );
-                      cartProvider.addToCart(cartItem);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Added to cart'),
-                          duration: Duration(seconds: 2),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              widget.name,
+                              style: GoogleFonts.nunito(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                color: isInWishlist ? Colors.red : Colors.grey,
+                              ),
+                              onPressed: () {
+                                wishlistProvider.toggleWishlist(
+                                  widget.name,
+                                  widget.imagePath,
+                                  widget.price,
+                                  widget.description,
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.black,
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Add to Cart',
-                        style: GoogleFonts.nunito(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                        SizedBox(height: 8),
+                        Text(
+                          widget.description,
+                          style: GoogleFonts.nunito(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
+                        SizedBox(height: screenHeight * 0.02), // Adjust spacing dynamically
+                        Text(
+                          '₹${widget.price}', // Ensure price string does not contain '$'
+                          style: GoogleFonts.nunito(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Available Colors',
+                          style: GoogleFonts.nunito(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        buildColorOptions(), // Color options builder
+                        SizedBox(height: 16),
+                        Text(
+                          'Available Sizes',
+                          style: GoogleFonts.nunito(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        buildSizeOptions(), // Size options builder
+                        SizedBox(height: 24),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                if (selectedSize.isNotEmpty && selectedColor.isNotEmpty) {
+                  // Add product to cart
+                  final cartItem = CartItem(
+                    imagePath: widget.imagePath,
+                    name: widget.name,
+                    price: double.parse(widget.price.replaceAll('₹', '').replaceAll(',', '')),
+                  );
+                  cartProvider.addToCart(cartItem);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Added to cart'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please select size and color'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.black,
+              ),
+              child: Container(
+                width: double.infinity,
+                alignment: Alignment.center,
+                child: Text(
+                  'Add to Cart',
+                  style: GoogleFonts.nunito(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget buildColorOptions() {
+    List<String> colors = ['Red', 'Blue', 'Green', 'Orange']; // Replace with actual colors
+    return Row(
+      children: colors.map((color) {
+        bool isSelected = selectedColor == color;
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedColor = color; // Update selected color
+            });
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: isSelected ? Colors.grey : Colors.transparent,
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: getColorFromString(color), // Get color from string method
+                  ),
+                ),
+                if (isSelected)
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.transparent, // Transparent background
+                        child: Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.white, // White color for the tick
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Color getColorFromString(String colorString) {
+    // Logic to convert color string to Color object
+    switch (colorString.toLowerCase()) {
+      case 'red':
+        return Colors.red;
+      case 'blue':
+        return Colors.blue;
+      case 'green':
+        return Colors.green;
+      case 'orange':
+        return Colors.deepOrangeAccent;
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  Widget buildSizeOptions() {
+    List<String> sizes = ['S', 'M', 'L', 'XL']; // Replace with actual sizes
+    return Row(
+      children: sizes.map((size) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedSize = size; // Update selected size
+            });
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                border: Border.all(color: selectedSize == size ? Colors.black : Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+                color: selectedSize == size ? Colors.black : Colors.white,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                size,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: selectedSize == size ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

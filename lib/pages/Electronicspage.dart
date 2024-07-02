@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../cartmodel.dart';
 import '../cartprovider.dart';
 import '../whishlistprovider.dart';
-import '../pages/ProductDetailsPage.dart'; // Adjust import as per your file structure
 
 // Define the product model
 class Product {
@@ -14,13 +13,28 @@ class Product {
   final String image;
   final String price;
   final String description;
+  final List<String> colors; // New field for product colors
 
   Product({
     required this.name,
     required this.image,
     required this.price,
     required this.description,
+    required this.colors, // Include colors in the constructor
   });
+
+  factory Product.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data() as Map<String, dynamic>;
+    // Extract colors as List<String> from Firestore data
+    List<String> colors = List<String>.from(data['colors'] ?? []);
+    return Product(
+      name: data['name'] ?? '',
+      image: data['image'] ?? '',
+      price: data['price'] ?? '',
+      description: data['description'] ?? '',
+      colors: colors,
+    );
+  }
 }
 
 // ElectronicsPage class
@@ -51,12 +65,7 @@ class ElectronicsPage extends StatelessWidget {
           }
 
           List<Product> products = snapshot.data!.docs.map((doc) {
-            return Product(
-              name: doc['name'] ?? '',
-              image: doc['image'] ?? '',
-              price: doc['price'] ?? '',
-              description: doc['description'] ?? '',
-            );
+            return Product.fromFirestore(doc);
           }).toList();
 
           return SingleChildScrollView(
@@ -108,12 +117,7 @@ class PriceGridView extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductDetailsPage(
-                  imagePath: product.image,
-                  name: product.name,
-                  price: product.price,
-                  description: product.description,
-                ),
+                builder: (context) => ProductDetailsPage(product: product),
               ),
             );
           },
@@ -189,6 +193,194 @@ class PriceGridView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// ProductDetailsPage class
+class ProductDetailsPage extends StatefulWidget {
+  final Product product;
+
+  const ProductDetailsPage({Key? key, required this.product}) : super(key: key);
+
+  @override
+  _ProductDetailsPageState createState() => _ProductDetailsPageState();
+}
+
+class _ProductDetailsPageState extends State<ProductDetailsPage> {
+  Color? selectedColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: false);
+
+    final isInWishlist = wishlistProvider.isInWishlist(widget.product.name);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Product Details', style: GoogleFonts.nunito()),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      backgroundColor: Colors.white,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: Image.asset(
+                        widget.product.image,
+                        height: MediaQuery.of(context).size.height * 0.4,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              widget.product.name,
+                              style: GoogleFonts.nunito(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                color: isInWishlist ? Colors.red : Colors.grey,
+                              ),
+                              onPressed: () {
+                                wishlistProvider.toggleWishlist(
+                                  widget.product.name,
+                                  widget.product.image,
+                                  widget.product.price,
+                                  widget.product.description,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          widget.product.description,
+                          style: GoogleFonts.nunito(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          '₹${widget.product.price}',
+                          style: GoogleFonts.nunito(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Available Colors:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _buildColorAvatar(Colors.red),
+                            SizedBox(width: 8),
+                            _buildColorAvatar(Colors.black),
+                            SizedBox(width: 8),
+                            _buildColorAvatar(Colors.blue.shade900),
+                          ],
+                        ),
+                        SizedBox(height: 80), // Adjust the bottom padding for the content
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                // Add product to cart
+                final cartItem = CartItem(
+                  imagePath: widget.product.image,
+                  name: widget.product.name,
+                  price: double.parse(widget.product.price.replaceAll('₹', '').replaceAll(',', '')),
+                );
+                cartProvider.addToCart(cartItem);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Added to cart'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.black,
+              ),
+              child: Text(
+                'Add to Cart',
+                style: GoogleFonts.nunito(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper function to build a colored circle avatar
+  Widget _buildColorAvatar(Color color) {
+    bool isSelected = selectedColor == color;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedColor = color;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: CircleAvatar(
+          backgroundColor: color,
+          radius: 20,
+          foregroundColor: isSelected ? Colors.white : null,
+          child: isSelected ? Icon(Icons.check, color: Colors.white) : null,
+        ),
+      ),
     );
   }
 }
