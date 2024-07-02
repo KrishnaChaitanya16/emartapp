@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emartapp/pages/Cartpage.dart';
+import 'package:emartapp/pages/Loginpage.dart';
 import 'package:emartapp/pages/wishlistpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -328,8 +329,10 @@ class ProfilePage extends StatelessWidget {
                   ),
                   onTap: () async {
                     await FirebaseAuth.instance.signOut();
-                    Navigator.popUntil(context,
-                        ModalRoute.withName('/')); // Pop all routes until reaching the login/home screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Loginpage()),
+                    );; // Pop all routes until reaching the login/home screen
                   },
                 ),
               ),

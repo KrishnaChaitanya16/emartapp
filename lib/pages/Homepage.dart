@@ -6,6 +6,7 @@ import 'package:emartapp/cartprovider.dart';
 import 'package:emartapp/pages/Applepage.dart';
 import 'package:emartapp/pages/Cartpage.dart';
 import 'package:emartapp/pages/Hublotpage.dart';
+import 'package:emartapp/pages/Loginpage.dart';
 import 'package:emartapp/pages/Nikepage.dart';
 import 'package:emartapp/pages/Nykaapage.dart';
 
@@ -13,6 +14,7 @@ import 'package:emartapp/pages/Zarapage.dart';
 import 'package:emartapp/pages/profilepage.dart';
 import 'package:emartapp/pages/wishlistpage.dart';
 import 'package:emartapp/whishlistprovider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -263,9 +265,14 @@ class _HomepageState extends State<Homepage> {
               ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Logout', style: GoogleFonts.nunito(fontSize: screenWidth * 0.045)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () async{
+
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Loginpage()),
+                    );
+                }
               ),
             ],
           ),
