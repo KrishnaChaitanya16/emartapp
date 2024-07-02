@@ -30,6 +30,7 @@ Here are some screen shots of the app :
 <img width="1470" alt="Screenshot 2024-06-27 at 2 52 26 PM" src="https://github.com/KrishnaChaitanya16/emartapp/assets/154082270/25a957b6-7b1b-4a15-979d-752deb469949">
 <img width="1470" alt="Screenshot 2024-06-27 at 2 53 49 PM" src="https://github.com/KrishnaChaitanya16/emartapp/assets/154082270/2c2bc49a-4490-4615-89b0-cb612b6d7071">
 <img width="1470" alt="Screenshot 2024-06-27 at 2 54 44 PM" src="https://github.com/KrishnaChaitanya16/emartapp/assets/154082270/c874ace0-5131-4b53-9237-f3bc47c38d1f">
+<img width="1470" alt="Screenshot 2024-07-02 at 4 54 19 PM" src="https://github.com/KrishnaChaitanya16/emartapp/assets/154082270/60051a5e-7342-471a-98e1-8a9d8c9013ef">
 
 
 
