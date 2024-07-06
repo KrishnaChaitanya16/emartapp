@@ -45,6 +45,7 @@ class AccessoriesPage extends StatelessWidget {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
+     backgroundColor: Colors.white,
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('accessories').snapshots(),
         builder: (context, snapshot) {
